@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <!-- 引入JQuery -->
+    <script type="text/javascript"
+            src="http://localhost:8005/js/jquery-2.2.3.min.js"
+            th:src="@{http://localhost:8005/js/jquery-2.2.3.min.js}"></script>
+    <script>
+        //重新获取图片验证码
+        function revcode() {
+            document.getElementById("code").src="http://localhost:8005/code/imagecode";
+        }
+        //传入值非JSON,返回值JSON
+        function checkcode(){
+            var imagecode = document.getElementById("imagecode").value;
+            $.ajax({
+                type: 'post',//请求方式
+                url: 'http://localhost:8005/view/checkImageCode',//请求的 url地址  建议使用绝对地址
+                data: 'imagecode=' + imagecode,//请求携带的 参数
+                dataType:"json",//如果后台返回的数据是String改造的  这里需要指定返回类型  否则 result.msg取不到值
+                success: function (result) {//注意 success中 function的data 可以解析后台响应的数据
+                    //success是回调函数  可以将 后台数据返回到 当前页面   接着 进行具体 操作
+                    if("ok"==result.msg){
+                        document.getElementById("codeErr").innerHTML
+                            = "<font color='green'>&radic;验证码正确！</font>";
+                    }else{
+                        document.getElementById("codeErr").innerHTML
+                            = "<font color='red'>&times;验证码错误！</font>";
+                    }
+                },
+                error: function () {//失败的回调函数   如果url地址不对  或者 后台有错   都会进入该方法 (可以不写 )
+                    console.log('通讯失败!');
+                }
+            });
+        }
+    </script>
+</head>
+<body >
+<h1>用户登录</h1>
+<form action="http://localhost:8005/view/login" method="post">
+    <table>
+
+        <tr><td>用户名</td>
+            <td><input type="text"  id="name" name="cnickname" placeholder="请输入昵称" /></td>
+            <td><span style="color: red;" th:text="${nameErr}"></span></td>
+        <tr><td>密码</td>
+            <td><input type="password"  id="pwd" name="cpassword" placeholder="请输入密码"/></td></tr>
+        <td><span style="color: red;" th:text="${pwdErr}"></span></td>
+        </tr>
+        <tr ><td></td>
+            <td><input type="text" onkeyup="checkcode()" id="imagecode" name="imagecode" placeholder="请输入图片验证码"/></td>
+            <td><img id="code"  th:src="@{http://localhost:8005/code/imageCode}"/>
+                <button id="recode" onclick="revcode()">重换一张</button>
+                <span  id="codeErr" th:text="${codeErr}"></span>
+            </td>
+        </tr>
+        <td><input type="submit" id="submit" value="立即登录"/></td>
+        <td><input type="reset" value="重置"/></td>
+
+        </tr>
+    </table>
+</form>
+</body>
+</html>

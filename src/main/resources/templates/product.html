@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>商城</title>
+</head>
+<body>
+<h2 th:text="'欢迎，'+${consumerName}"></h2>
+<button id="cart" >购物车</button>
+<!--<h5 th:text="'欢迎'+${session.user.uName}"></h5>-->
+<!--<a th:href="@{http://localhost:8080/weibo/user/logout}">退出登录</a>-->
+
+<ul  style="list-style:none;" th:each="p:${pageInfo.list}" >
+    <li th:text="'--商品编号-- '+${p.pid}"></li>
+    <li th:text="'--商品名-- '+${p.pname}"></li>
+    <li th:text="'--价格-- '+${p.price}"></li>
+    <li><img  style="height: 100px;width: 100px" th:src="'http://localhost:8005/image/'+${p.picpath}"></li>
+    <li><button th:onclick="'addCart('+${p.pid}+')'"  th:value="${p.pid}">加入购物车</button></li>
+    <a th:href="@{'http://localhost:8005/view/findProductByPid/'+${p.pid}}">点击查看商品详情</a>
+</ul>
+<span th:text="|第${pageInfo.pageNum}页，共${pageInfo.pages}页|"></span>
+<a th:href="@{'http://localhost:8005/view/showAllProduct/'+'?pageNum=1'}">第一页</a>
+<a th:href="@{'http://localhost:8005/view/showAllProduct/'+'?pageNum='+${pageInfo.prePage}}">上一页</a>
+<a th:href="@{'http://localhost:8005/view/showAllProduct/'+'?pageNum='+${pageInfo.nextPage}}">下一页</a>
+<a th:href="@{'http://localhost:8005/view/showAllProduct/'+'?pageNum='+${pageInfo.pages}}">最末页</a>
+</body>
+<script type="text/javascript"
+        src="http://localhost:8005/js/jquery-2.2.3.min.js"
+        th:src="@{http://localhost:8005/js/jquery-2.2.3.min.js}"></script>
+<script type="text/javascript" defer="true">
+    // $(document).ready(function(){
+    //
+    //
+    // });
+    function addCart(pId){
+
+        $.ajax({
+            type: 'get',//请求方式
+            url: 'http://localhost:8005/view/AddProductToCart/'+pId,//请求的 url地址  建议使用绝对地址
+            headers:{
+                'Authorization': "Bearer "+getCookie("token")
+            },
+            //设定请求参数类型
+            dataType:"json",//如果后台返回的数据是String改造的  这里需要指定返回类型  否则 result.msg取不到值
+            success: function (result) {//注意 success中 function的data 可以解析后台响应的数据
+                //success是回调函数  可以将 后台数据返回到 当前页面   接着 进行具体 操作
+                if("ok"==result.msg){
+                    alert("加入成功！");
+                }else{
+                    alert("加入失败!");
+                }
+            },
+            error: function () {//失败的回调函数   如果url地址不对  或者 后台有错   都会进入该方法 (可以不写 )
+                console.log('通讯失败!');
+                alert("请先登录!");
+            }
+        });
+    }
+        $("#cart").click(function () {
+            $.ajax({
+                type: 'get',//请求方式
+                url: 'http://localhost:8005/view/toCart',//请求的 url地址  建议使用绝对地址
+                headers:{
+                    'Authorization': "Bearer "+getCookie("token")
+                },
+                //设定请求参数类型
+                dataType:"json",//如果后台返回的数据是String改造的  这里需要指定返回类型  否则 result.msg取不到值
+                success: function (result) {//注意 success中 function的data 可以解析后台响应的数据
+                    //success是回调函数  可以将 后台数据返回到 当前页面   接着 进行具体 操作
+                    if("ok"==result.msg){
+                        alert("检测到用户已登录，前往购物车...");
+                        window.location.href = "cart";
+                    }else{
+                        alert("请先登录!");
+                    }
+                },
+                error: function () {//失败的回调函数   如果url地址不对  或者 后台有错   都会进入该方法 (可以不写 )
+                    console.log('通讯失败!');
+                }
+            });
+        })
+
+
+
+</script>
+<script>
+    function getCookie(c_name){
+        if (document.cookie.length>0){//判断cookie是否存在
+            // 获取cookie名称加=的索引值
+            c_start = document.cookie.indexOf(c_name + "=");
+            if (c_start!=-1){//说明这个cookie存在
+                // 获取cookie名称对应值的开始索引值
+                c_start = c_start + c_name.length+1;
+                //从c_start位置开始找第一个分号的索引值，也就是cookie名称对应值的结束索引值
+                c_end = document.cookie.indexOf(";",c_start);
+                //如果找不到，说明是cookie名称对应值的结束索引值就是cookie的长度
+                if (c_end == -1) c_end=document.cookie.length;
+                //unescape() 函数可对通过 escape() 编码的字符串进行解码
+                // 获取cookie名称对应的值，并返回
+                return unescape(document.cookie.substring(c_start,c_end))
+            }
+        }
+        return "" //不存在返回空字符串}
+    }
+</script>
+</html>

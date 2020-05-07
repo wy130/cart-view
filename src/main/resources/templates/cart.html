@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>我的购物车</title>
+
+</head>
+<body>
+<!--<h5 th:text="'欢迎'+${session.user.uName}"></h5>-->
+<!--<a th:href="@{http://localhost:8080/weibo/user/logout}">退出登录</a>-->
+
+<!--<ul th:each="c:${carts}" >-->
+    <!--<li th:text="'商品编号'+${c.product.pid}"></li>-->
+    <!--<li th:text="'商品名'+${c.product.pname}"></li>-->
+    <!--<li th:text="'价格'+${c.product.price}"></li>-->
+    <!--<li><img  style="height: 100px;width: 100px" th:src="'http://localhost:8005/image/'+${c.product.picpath}"></li>-->
+    <!--<a th:href="@{'http://localhost:8005/view/RemoveProductFromCart/'+${c.pid}}">从购物车中移除</a>-->
+<!--</ul>-->
+<a href="/view/showAllProduct">直接去商城</a>
+<h2>我的购物车</h2>
+<table  id="table01">
+    <thead>
+    <tr>
+        <th>商品编号</th>
+        <th>商品名</th>
+        <th>选择的数量</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+</table>
+</body>
+<script type="text/javascript"
+        src="http://localhost:8005/js/jquery-2.2.3.min.js"
+        th:src="@{http://localhost:8005/js/jquery-2.2.3.min.js}"></script>
+<script type="text/javascript" defer="true">
+    $(document).ready(function(){
+        $.ajax({
+            url: 'http://localhost:8005/view/getCart',
+            type: 'get',//请求方式
+            //dataType:"json",
+            headers:{
+                'Authorization': "Bearer "+getCookie("token")
+            },
+            //如果后台返回的数据是String改造的  这里需要指定返回类型  否则 result.msg取不到值
+            success: function(result) {
+                console.log(result);
+                //取出具体的数据,console网页调试中展示
+                var attr = result;
+                //循环变量数据,index表示的是角标,item表示的是attr数组
+                $.each(attr, function(index, item) {
+                    var tr;
+                    tr = '<td>' + item.pid + '</td>' + '<td>' + item.pname + '</td>' + '<td>' + item.choice + '</td>'
+                        + '<td ><button  id="' + item.pid + '"  value="' + item.pid + '" onclick="RemoveProductFromCart(' + item.pid + ')">从购物车中移除</button></td>';
+                    //取出数据拼接标签
+                    $("#table01").append('<tr>' + tr + '</tr>');//将创建好的td挂载到table下
+                })
+            }
+        });
+
+    });
+</script>
+<script>
+    function RemoveProductFromCart(pid) {
+        $.ajax({
+            type: "get", //get方式
+            url: "http://localhost:8005/view/RemoveProductFromCart/"+pid,
+            headers:{
+                'Authorization': "Bearer "+getCookie("token")
+            },
+            //设定请求参数类型
+            dataType:"json",//如果后台返回的数据是String改造的  这里需要指定返回类型  否则 result.msg取不到值
+            success: function (result) {//注意 success中 function的data 可以解析后台响应的数据
+                //success是回调函数  可以将 后台数据返回到 当前页面   接着 进行具体 操作
+                if("ok"==result.msg){
+                    alert("从购物车中移除成功！");
+                    location.reload(true);
+                }else{
+                    alert("从购物车中移除失败!");
+                }
+            },
+            error: function () {//失败的回调函数   如果url地址不对  或者 后台有错   都会进入该方法 (可以不写 )
+                console.log('通讯失败!');
+            }
+        });
+    };
+    function getCookie(c_name){
+        if (document.cookie.length>0){//判断cookie是否存在
+            // 获取cookie名称加=的索引值
+            c_start = document.cookie.indexOf(c_name + "=");
+            if (c_start!=-1){//说明这个cookie存在
+                // 获取cookie名称对应值的开始索引值
+                c_start = c_start + c_name.length+1;
+                //从c_start位置开始找第一个分号的索引值，也就是cookie名称对应值的结束索引值
+                c_end = document.cookie.indexOf(";",c_start);
+                //如果找不到，说明是cookie名称对应值的结束索引值就是cookie的长度
+                if (c_end == -1) c_end=document.cookie.length;
+                //unescape() 函数可对通过 escape() 编码的字符串进行解码
+                // 获取cookie名称对应的值，并返回
+                return unescape(document.cookie.substring(c_start,c_end))
+            }
+        }
+        return "" //不存在返回空字符串}
+    }
+</script>
+</html>

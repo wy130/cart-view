@@ -1,0 +1,52 @@
+###服务启动端口号
+server:
+  port: 8005
+###服务名称(服务注册到eureka名称)
+  tomcat:
+    uri-encoding: utf-8
+
+spring:
+#  application:
+#    name: app-cart-view
+  ###服务注册到eureka地址
+#  datasource:
+#    driver-class-name: com.mysql.jdbc.Driver
+#    url: jdbc:mysql://127.0.0.1:3306/cart?characterEncoding=utf-8
+#    username: root
+#    password: root
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+    mode: HTML
+
+  main:
+    allow-bean-definition-overriding: false
+
+
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://localhost:8100/eureka
+#
+#
+#    ###因为该应用为注册中心，不会注册自己
+#    register-with-eureka: true
+#    ###是否需要从eureka上获取注册信息
+#    fetch-registry: true
+#
+####开启Hystrix断路器
+#feign:
+#  hystrix:
+#    enabled: true
+#
+#
+##### hystrix禁止服务超时时间
+#hystrix:
+#  command:
+#    default:
+#      execution:
+#        timeout:
+#          enabled: false
+
+
